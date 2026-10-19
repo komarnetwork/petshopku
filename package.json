@@ -1,27 +1,37 @@
 {
-  "name": "petshopku",
+  "name": "petshopku-nextjs",
   "version": "0.1.0",
   "private": true,
+  "description": "Petshopku - sistem klinik hewan dan pet shop (Next.js + Firebase)",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "start": "next start -p 3001",
+    "periksa": "tsc --noEmit",
+    "uji": "npx -y firebase-tools@13.35.1 emulators:exec --only auth,database --project demo-petshopku \"tsx pengujian/uji-emulator.ts\"",
+    "emulator": "npx -y firebase-tools@13.35.1 emulators:start --only auth,database --project demo-petshopku"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "firebase": "^13.0.0",
-    "next": "16.4.0",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "lucide-react": "^0.564.0",
+    "next": "16.2.6",
+    "react": "^19",
+    "react-dom": "^19",
+    "recharts": "^3.10.1",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
-    "@tailwindcss/turbopack": "^4",
-    "@types/node": "^20",
+    "@tailwindcss/postcss": "^4.2.0",
+    "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.4.0",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "postcss": "^8.5",
+    "tailwindcss": "^4.2.0",
+    "tsx": "^4.23.15",
+    "typescript": "5.7.3"
   }
 }

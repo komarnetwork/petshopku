@@ -66,6 +66,39 @@
       "$uid": {
         ".read": "auth != null && auth.uid === $uid"
       }
+    },
+    "appointments": {
+      ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' || (auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && query.orderByChild === 'doctor_id' && query.equalTo === auth.uid)",
+      ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      ".indexOn": [
+        "doctor_id",
+        "pet_id"
+      ],
+      "$id": {
+        ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.child('doctor_id').val() === auth.uid",
+        "doctor_archived_at": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid"
+        },
+        "updated_at": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid"
+        },
+        "status": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid && data.val() === 'dijadwalkan' && newData.val() === 'selesai' && newData.parent().child('completed_at').isString()",
+          ".validate": "newData.val() === 'dijadwalkan' || newData.val() === 'selesai' || newData.val() === 'dibatalkan'"
+        },
+        "completed_at": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid && data.parent().child('status').val() === 'dijadwalkan' && newData.parent().child('status').val() === 'selesai' && newData.isString()"
+        },
+        "vaccination_id": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid && data.parent().child('status').val() === 'dijadwalkan' && newData.parent().child('status').val() === 'selesai' && newData.parent().parent().parent().child('vaccinations').child(newData.val()).child('appointment_id').val() === $id && newData.parent().parent().parent().child('vaccinations').child(newData.val()).child('doctor_id').val() === auth.uid && newData.parent().parent().parent().child('vaccinations').child(newData.val()).child('status').val() === 'dikonfirmasi'"
+        },
+        "examination_id": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid && data.parent().child('status').val() === 'dijadwalkan' && newData.parent().child('status').val() === 'selesai' && newData.parent().parent().parent().child('examinations').child(newData.val()).child('appointment_id').val() === $id && newData.parent().parent().parent().child('examinations').child(newData.val()).child('doctor_id').val() === auth.uid && newData.parent().parent().parent().child('examinations').child(newData.val()).child('status').val() === 'dikonfirmasi'"
+        },
+        "estimated_price": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
     }
   }
 }

@@ -99,6 +99,102 @@
           ".validate": "newData.isNumber() && newData.val() >= 0"
         }
       }
+    },
+    "consultations": {
+      ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' || (auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && query.orderByChild === 'doctor_id' && query.equalTo === auth.uid)",
+      ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      ".indexOn": [
+        "doctor_id",
+        "pet_id"
+      ],
+      "$id": {
+        ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.child('doctor_id').val() === auth.uid",
+        ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && !data.exists() && root.child('appointments').child($id).child('doctor_id').val() === auth.uid && root.child('appointments').child($id).child('status').val() === 'dijadwalkan' && newData.child('appointment_id').val() === $id && newData.child('doctor_id').val() === auth.uid && newData.child('pet_id').val() === root.child('appointments').child($id).child('pet_id').val() && newData.child('fee').val() === root.child('appointments').child($id).child('estimated_price').val() && newData.child('doctor_notes').isString() && newData.child('doctor_notes').val().length > 0 && newData.child('completed_at').isString() && newData.child('is_archived').val() === false",
+        "fee": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
+    },
+    "vaccinations": {
+      ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' || (auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && query.orderByChild === 'doctor_id' && query.equalTo === auth.uid)",
+      ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      ".indexOn": [
+        "doctor_id",
+        "pet_id"
+      ],
+      "$id": {
+        ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.child('doctor_id').val() === auth.uid",
+        ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && !data.exists() && newData.child('doctor_id').val() === auth.uid && newData.child('status').val() === 'dijadwalkan' && newData.child('fee').isNumber() && newData.child('fee').val() >= 0 && newData.child('is_archived').val() === false && root.child('doctor_access').child(auth.uid).child('pets').child(newData.child('pet_id').val()).val() === true && (!newData.child('appointment_id').exists() || (root.child('appointments').child(newData.child('appointment_id').val()).child('doctor_id').val() === auth.uid && root.child('appointments').child(newData.child('appointment_id').val()).child('pet_id').val() === newData.child('pet_id').val()))",
+        "status": {
+          ".write": "(auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid && data.val() === 'dijadwalkan' && (newData.val() === 'dikonfirmasi' || newData.val() === 'dibatalkan') && (newData.val() !== 'dibatalkan' || (newData.parent().child('cancellation_reason').isString() && newData.parent().child('cancellation_reason').val().length > 0))) || (auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid && data.val() === 'dikonfirmasi' && newData.val() === 'sudah_disuntik')",
+          ".validate": "newData.val() === 'dijadwalkan' || newData.val() === 'dikonfirmasi' || newData.val() === 'sudah_disuntik' || newData.val() === 'dibatalkan'"
+        },
+        "appointment_id": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid && !data.exists() && root.child('appointments').child(newData.val()).child('doctor_id').val() === auth.uid && root.child('appointments').child(newData.val()).child('pet_id').val() === data.parent().child('pet_id').val()"
+        },
+        "cancellation_reason": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid"
+        },
+        "injected_date": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid"
+        },
+        "next_dose_date": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid"
+        },
+        "updated_at": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid"
+        },
+        "fee": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
+    },
+    "examinations": {
+      ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' || (auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && query.orderByChild === 'doctor_id' && query.equalTo === auth.uid)",
+      ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      ".indexOn": [
+        "doctor_id",
+        "pet_id",
+        "consultation_id"
+      ],
+      "$id": {
+        ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.child('doctor_id').val() === auth.uid",
+        ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && !data.exists() && newData.child('doctor_id').val() === auth.uid && newData.child('status').val() === 'dijadwalkan' && newData.child('fee').isNumber() && newData.child('fee').val() >= 0 && newData.child('is_archived').val() === false && root.child('doctor_access').child(auth.uid).child('pets').child(newData.child('pet_id').val()).val() === true && (!newData.child('appointment_id').exists() || (root.child('appointments').child(newData.child('appointment_id').val()).child('doctor_id').val() === auth.uid && root.child('appointments').child(newData.child('appointment_id').val()).child('pet_id').val() === newData.child('pet_id').val())) && (newData.child('category').val() === 'pencitraan' || newData.child('category').val() === 'laboratorium') && (newData.child('type').val() !== 'Lainnya' || (newData.child('custom_name').isString() && newData.child('custom_name').val().length > 0))",
+        "status": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid && data.val() === 'dijadwalkan' && (newData.val() === 'dikonfirmasi' || newData.val() === 'dibatalkan') && (newData.val() !== 'dibatalkan' || (newData.parent().child('cancellation_reason').isString() && newData.parent().child('cancellation_reason').val().length > 0))",
+          ".validate": "newData.val() === 'dijadwalkan' || newData.val() === 'dikonfirmasi' || newData.val() === 'dibatalkan'"
+        },
+        "appointment_id": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid && !data.exists() && root.child('appointments').child(newData.val()).child('doctor_id').val() === auth.uid && root.child('appointments').child(newData.val()).child('pet_id').val() === data.parent().child('pet_id').val()"
+        },
+        "cancellation_reason": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid"
+        },
+        "updated_at": {
+          ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && data.parent().child('doctor_id').val() === auth.uid"
+        },
+        "category": {
+          ".validate": "newData.val() === 'pencitraan' || newData.val() === 'laboratorium'"
+        },
+        "fee": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
+    },
+    "transactions": {
+      ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      "$id": {
+        "amount": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        },
+        "type": {
+          ".validate": "newData.val() === 'pemasukan' || newData.val() === 'pengeluaran'"
+        },
+        "status": {
+          ".validate": "newData.val() === 'aktif' || newData.val() === 'dibatalkan'"
+        }
+      }
     }
   }
 }

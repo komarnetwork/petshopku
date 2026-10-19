@@ -52,6 +52,20 @@
           ".validate": "newData.isNumber() && newData.val() >= 0"
         }
       }
+    },
+    "pets": {
+      ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      "$id": {
+        ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'doctor' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui' && root.child('doctor_access').child(auth.uid).child('pets').child($id).val() === true"
+      }
+    },
+    "doctor_access": {
+      ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
     }
   }
 }

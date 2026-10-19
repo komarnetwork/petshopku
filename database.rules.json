@@ -1,0 +1,57 @@
+/*
+  Petshopku - aturan keamanan Firebase Realtime Database.
+  Semua aturan akses dijaga di sini (di sisi server), bukan hanya di tampilan.
+
+  Peran (profiles/{uid}/role): admin mengelola seluruh data; doctor hanya melihat pasien yang ia tangani.
+  Akun yang belum disetujui dan pengguna yang belum login tidak punya akses ke data apa pun.
+
+  Realtime Database tidak menyaring data diam-diam: kueri yang BISA mengembalikan data terlarang ditolak.
+  Karena itu dokter membaca janji temu, konsultasi, vaksinasi, dan pemeriksaan hanya lewat kueri
+  orderByChild('doctor_id').equalTo(uid), dan membaca pasien lewat daftar doctor_access/{uid}/pets.
+
+  Dokter menandai janji temunya selesai langsung (dengan tanggal dan jam selesai), baik lewat hasil
+  konsultasi maupun persetujuan vaksinasi / pemeriksaan terkait; ia juga menolak usulannya sendiri. Tidak ada
+  jawaban pemilik karena pemilik tidak punya akun.
+*/
+{
+  "rules": {
+    "profiles": {
+      ".read": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      ".indexOn": [
+        "approval_status",
+        "role"
+      ],
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || (auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'))",
+        ".write": "(auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui') || (auth != null && auth.uid === $uid && !data.exists() && newData.child('role').val() === 'doctor' && newData.child('approval_status').val() === 'menunggu' && newData.child('email').val() === auth.token.email && !newData.child('license_number').exists() && !newData.child('approved_at').exists() && !newData.child('approved_by').exists() && !newData.child('rejected_at').exists() && !newData.child('rejected_by').exists() && !newData.child('rejection_reason').exists())",
+        "full_name": {
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "phone": {
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "updated_at": {
+          ".write": "auth != null && auth.uid === $uid"
+        },
+        "role": {
+          ".validate": "newData.val() === 'admin' || newData.val() === 'doctor'"
+        },
+        "approval_status": {
+          ".validate": "newData.val() === 'menunggu' || newData.val() === 'disetujui' || newData.val() === 'ditolak'"
+        }
+      }
+    },
+    "services": {
+      ".read": "auth != null && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      ".write": "auth != null && root.child('profiles').child(auth.uid).child('role').val() === 'admin' && root.child('profiles').child(auth.uid).child('approval_status').val() === 'disetujui'",
+      ".indexOn": [
+        "type"
+      ],
+      "$id": {
+        "price": {
+          ".validate": "newData.isNumber() && newData.val() >= 0"
+        }
+      }
+    }
+  }
+}

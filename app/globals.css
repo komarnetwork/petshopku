@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
+/* Warna Petshopku. Ubah nilai di sini untuk mengganti tema seluruh aplikasi. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f6f8f7;
+  --foreground: #12302d;
+  --card: #ffffff;
+  --card-foreground: #12302d;
+  --primary: #0f766e;
+  --primary-foreground: #ffffff;
+  --accent: #d9f0ec;
+  --accent-foreground: #0b4f49;
+  --sorot: #f97316;
+  --muted: #eaf0ee;
+  --muted-foreground: #5a7370;
+  --border: #d3e0dd;
+  --ring: #14a89c;
+  --destructive: #dc2626;
+  --sidebar: #0d3b37;
+  --sidebar-foreground: #ffffff;
+  --sidebar-aktif: #0f766e;
 }
 
 @theme inline {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-sorot: var(--sorot);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-aktif: var(--sidebar-aktif);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    @apply border-border;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
 }

@@ -18,7 +18,7 @@ import {
   set,
   update,
 } from "firebase/database";
-import { auth, db } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase-lama";
 
 type Pet = {
   id: string;

@@ -4,7 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth } from "@/lib/firebase-lama";
 
 export default function DaftarPage() {
   const [nama, setNama] = useState("");

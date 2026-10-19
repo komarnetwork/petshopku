@@ -1,133 +1,123 @@
+"use client"
 
-"use client";
+import { Suspense, useState, type FormEvent } from "react"
+import Link from "next/link"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Eye, EyeOff, LogIn } from "lucide-react"
+import { KerangkaAuth } from "@/components/umum/kerangka-auth"
+import { Tombol } from "@/components/ui/tombol"
+import { Input, KolomFormulir } from "@/components/ui/input"
+import { PesanGalat } from "@/components/ui/status"
+import { gunakanAuth } from "@/context/auth-context"
+import { jalurAmanAtauNull, pesanGalatAuth } from "@/lib/galat"
+import { halamanUtamaPeran } from "@/lib/peran"
 
-import { useState } from "react";
-import Link from "next/link";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "@/lib/firebase-lama";
+const PESAN_DITOLAK = "Pendaftaran Anda tidak disetujui. Hubungi pengelola klinik untuk informasi lebih lanjut."
 
-export default function MasukPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [pesan, setPesan] = useState("");
-  const [loading, setLoading] = useState(false);
+function FormMasuk() {
+  const router = useRouter()
+  const parameter = useSearchParams()
+  const { masuk, keluar } = gunakanAuth()
 
-  async function handleMasuk(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setPesan("");
-    setLoading(true);
+  const [email, setEmail] = useState("")
+  const [kataSandi, setKataSandi] = useState("")
+  const [tampilkanKataSandi, setTampilkanKataSandi] = useState(false)
+  const [galat, setGalat] = useState<string | null>(parameter.get("ditolak") ? PESAN_DITOLAK : null)
+  const [memuat, setMemuat] = useState(false)
+
+  async function tanganiKirim(kejadian: FormEvent) {
+    kejadian.preventDefault()
+    setGalat(null)
+    setMemuat(true)
 
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
-      window.location.href = "/dashboard";
-    } catch (error: unknown) {
-      const code =
-        typeof error === "object" &&
-        error !== null &&
-        "code" in error
-          ? String(error.code)
-          : "";
+      const { galat: galatMasuk, profil } = await masuk(email.trim(), kataSandi)
 
-      if (
-        code === "auth/invalid-credential" ||
-        code === "auth/user-not-found" ||
-        code === "auth/wrong-password"
-      ) {
-        setPesan("Email atau password salah. Silakan periksa kembali.");
-      } else if (code === "auth/invalid-email") {
-        setPesan("Format email tidak valid.");
-      } else {
-        setPesan("Login gagal. Periksa koneksi internet dan coba lagi.");
-        console.error(error);
+      if (galatMasuk) {
+        setGalat(pesanGalatAuth(galatMasuk))
+        return
       }
+
+      if (!profil || profil.approval_status === "menunggu") {
+        router.push("/menunggu-persetujuan")
+        router.refresh()
+        return
+      }
+
+      if (profil.approval_status === "ditolak") {
+        await keluar()
+        setGalat(PESAN_DITOLAK)
+        return
+      }
+
+      router.push(jalurAmanAtauNull(parameter.get("lanjut")) ?? halamanUtamaPeran(profil.role))
+      router.refresh()
+    } catch {
+      setGalat("Terjadi kesalahan tak terduga. Silakan coba lagi.")
     } finally {
-      setLoading(false);
+      setMemuat(false)
     }
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-10">
-      <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-lg">
-        <Link href="/" className="text-sm text-teal-700 hover:underline">
-          ← Kembali ke Beranda
-        </Link>
+    <KerangkaAuth judul="Selamat datang kembali" deskripsi="Masuk untuk mengelola klinik: hewan, janji temu, dan layanan">
+      <form onSubmit={tanganiKirim} className="space-y-5">
+        {galat && <PesanGalat>{galat}</PesanGalat>}
 
-        <div className="mb-8 mt-6 text-center">
-          <h1 className="text-3xl font-bold text-slate-900">
-            Masuk ke Petshopku
-          </h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Masuk untuk melanjutkan ke layanan klinik hewan kami.
-          </p>
-        </div>
+        <KolomFormulir label="Email">
+          <Input
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="nama@email.com"
+            value={email}
+            onChange={(kejadian) => setEmail(kejadian.target.value)}
+          />
+        </KolomFormulir>
 
-        <form onSubmit={handleMasuk} className="space-y-5">
-          <div>
-            <label
-              htmlFor="email"
-              className="mb-1 block text-sm font-medium text-slate-700"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="nama@email.com"
-              required
-              autoComplete="email"
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="mb-1 block text-sm font-medium text-slate-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Masukkan password"
+        <KolomFormulir label="Kata sandi">
+          <div className="relative">
+            <Input
+              type={tampilkanKataSandi ? "text" : "password"}
               required
               autoComplete="current-password"
-              className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100"
+              placeholder="••••••••"
+              className="pr-11"
+              value={kataSandi}
+              onChange={(kejadian) => setKataSandi(kejadian.target.value)}
             />
-          </div>
-
-          {pesan && (
-            <p
-              role="alert"
-              className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
+            <button
+              type="button"
+              onClick={() => setTampilkanKataSandi(!tampilkanKataSandi)}
+              aria-label={tampilkanKataSandi ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
             >
-              {pesan}
-            </p>
-          )}
+              {tampilkanKataSandi ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+            </button>
+          </div>
+        </KolomFormulir>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-teal-700 px-4 py-3 font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? "Memproses..." : "Masuk"}
-          </button>
-        </form>
+        <Tombol type="submit" ukuran="besar" className="w-full" memuat={memuat}>
+          {!memuat && <LogIn className="h-5 w-5" />}
+          {memuat ? "Memproses..." : "Masuk"}
+        </Tombol>
+      </form>
 
-        <p className="mt-6 text-center text-sm text-slate-600">
-          Belum punya akun?{" "}
-          <Link
-            href="/daftar"
-            className="font-semibold text-teal-700 hover:underline"
-          >
-            Daftar di sini
-          </Link>
-        </p>
-      </div>
-    </main>
-  );
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        Belum punya akun?{" "}
+        <Link href="/daftar" className="font-bold text-primary hover:underline">
+          Daftar sekarang
+        </Link>
+      </p>
+    </KerangkaAuth>
+  )
+}
+
+export default function HalamanMasuk() {
+  // useSearchParams wajib dibungkus Suspense pada Next.js.
+  return (
+    <Suspense>
+      <FormMasuk />
+    </Suspense>
+  )
 }

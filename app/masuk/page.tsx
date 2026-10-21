@@ -31,31 +31,43 @@ function FormMasuk() {
     setMemuat(true)
 
     try {
-      const { galat: galatMasuk, profil } = await masuk(email.trim(), kataSandi)
+      const { galat: galatMasuk, profil } = await masuk(
+        email.trim(),
+        kataSandi,
+      );
 
       if (galatMasuk) {
-        setGalat(pesanGalatAuth(galatMasuk))
-        return
+        if (galatMasuk.code === "auth/email-not-verified") {
+          router.push("/verifikasi-email");
+          router.refresh();
+          return;
+        }
+
+        setGalat(pesanGalatAuth(galatMasuk));
+        return;
       }
 
       if (!profil || profil.approval_status === "menunggu") {
-        router.push("/menunggu-persetujuan")
-        router.refresh()
-        return
+        router.push("/menunggu-persetujuan");
+        router.refresh();
+        return;
       }
 
       if (profil.approval_status === "ditolak") {
-        await keluar()
-        setGalat(PESAN_DITOLAK)
-        return
+        await keluar();
+        setGalat(PESAN_DITOLAK);
+        return;
       }
 
-      router.push(jalurAmanAtauNull(parameter.get("lanjut")) ?? halamanUtamaPeran(profil.role))
-      router.refresh()
+      router.push(
+        jalurAmanAtauNull(parameter.get("lanjut")) ??
+          halamanUtamaPeran(profil.role),
+      );
+      router.refresh();
     } catch {
-      setGalat("Terjadi kesalahan tak terduga. Silakan coba lagi.")
+      setGalat("Terjadi kesalahan tak terduga. Silakan coba lagi.");
     } finally {
-      setMemuat(false)
+      setMemuat(false);
     }
   }
 

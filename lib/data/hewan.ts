@@ -49,7 +49,7 @@ export async function ambilHewan(klien: KlienData, { diarsipkan = false } = {}):
   return terbaruDulu(daftar.map(bentukHewan))
 }
 
-/** Mendaftarkan pasien baru: pemilik dan hewannya tersimpan dalam satu data. */
+/** Mendaftarkan pasien baru, pemilik dan hewannya tersimpan dalam satu data. */
 export async function tambahHewan(klien: KlienData, masukan: MasukanHewan): Promise<Hewan> {
   const { db } = wajibMasuk(klien)
   const id = buatId(db, "pets")

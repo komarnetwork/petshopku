@@ -1,4 +1,6 @@
+
 import { HeaderBeranda } from "@/components/beranda/header-beranda"
+import { ChatbotMengambang } from "@/components/beranda/chatbot-mengambang"
 import {
   BagianAjakan,
   BagianCaraKerja,
@@ -13,6 +15,7 @@ export default function Beranda() {
   return (
     <>
       <HeaderBeranda />
+
       <main>
         <BagianUtama />
         <BagianFitur />
@@ -21,7 +24,10 @@ export default function Beranda() {
         <BagianPeran />
         <BagianAjakan />
       </main>
+
       <FooterBeranda />
+
+      <ChatbotMengambang />
     </>
   )
 }

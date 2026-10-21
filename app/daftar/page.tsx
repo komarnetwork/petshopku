@@ -54,13 +54,13 @@ export default function HalamanDaftar() {
     setMemuat(false)
 
     if (galatDaftar) {
-      setGalat(pesanGalat(galatDaftar))
-      return
+      setGalat(pesanGalat(galatDaftar));
+      return;
     }
 
-    // Akun langsung dibuat: lanjut ke halaman menunggu persetujuan admin.
-    router.push("/menunggu-persetujuan")
-    router.refresh()
+    // Verifikasi email harus dilakukan sebelum menunggu persetujuan admin.
+    router.push("/verifikasi-email");
+    router.refresh();
   }
 
   return (
